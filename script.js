@@ -1,48 +1,59 @@
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('notes/')
-        .then(response => response.text())
+    fetch('notes/index.html')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.text();
+        })
         .then(text => {
-            const files = extractMarkdownFileNames(text);
-            const postsContainer = document.getElementById("posts");
-            
-            files.forEach(file => {
-                fetch(`posts/${file}`)
-                    .then(response => response.text())
+            const notes = extractNoteLinksFromHTML(text);
+            const notesContainer = document.getElementById("notes");
+
+            notes.forEach(link => {
+                fetch(`notes/${link}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.text();
+                    })
                     .then(text => {
-                        const post = parseMarkdown(text);
-                        const postElement = document.createElement("div");
-                        postElement.className = "post";
+                        const note = parseMarkdown(text);
+                        const noteElement = document.createElement("div");
+                        noteElement.className = "note";
 
-                        const postTitle = document.createElement("h2");
-                        postTitle.className = "post-title";
-                        postTitle.textContent = post.title;
+                        const noteTitle = document.createElement("h2");
+                        noteTitle.className = "note-title";
+                        noteTitle.textContent = note.title;
 
-                        const postDate = document.createElement("p");
-                        postDate.className = "post-date";
-                        postDate.textContent = post.date;
+                        const noteDate = document.createElement("p");
+                        noteDate.className = "note-date";
+                        noteDate.textContent = note.date;
 
-                        const postContent = document.createElement("div");
-                        postContent.innerHTML = marked(post.content);
+                        const noteContent = document.createElement("div");
+                        noteContent.innerHTML = marked(note.content);
 
-                        postElement.appendChild(postTitle);
-                        postElement.appendChild(postDate);
-                        postElement.appendChild(postContent);
+                        noteElement.appendChild(noteTitle);
+                        noteElement.appendChild(noteDate);
+                        noteElement.appendChild(noteContent);
 
-                        postsContainer.appendChild(postElement);
-                    });
+                        notesContainer.appendChild(noteElement);
+                    })
+                    .catch(error => console.error('Error fetching note:', error));
             });
-        });
+        })
+        .catch(error => console.error('Error fetching index:', error));
 });
 
-function extractMarkdownFileNames(text) {
-    // Simple example: Extract Markdown filenames from a directory listing
-    const regex = /href="([^"]*\.md)"/g;
-    const files = [];
+function extractNoteLinksFromHTML(text) {
+    const regex = /href="([^"]*\.md)"/g; // Extract links in HTML
+    const links = [];
     let match;
     while ((match = regex.exec(text)) !== null) {
-        files.push(match[1]);
+        links.push(match[1]);
     }
-    return files;
+    return links;
 }
 
 function parseMarkdown(text) {
