@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+const notes = (await getCollection("notes")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout title="Notes">
+  <section class="min-h-screen px-8 pt-32">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-4xl font-bold mb-10">Notes</h1>
+
+      <ul class="space-y-10">
+        {notes.map((note) => (
+          <li>
+            <a href={`/notes/${note.slug}`} class="block hover:opacity-80">
+              <h2 class="text-2xl font-semibold">{note.data.title}</h2>
+              <p class="text-sm text-gray-400 mt-1">
+                {note.data.date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                })}
+              </p>
+              <p class="text-gray-300 mt-3">{note.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

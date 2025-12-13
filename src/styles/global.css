@@ -1,1 +1,30 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    background-color: #151515;
+    color: #dbdbdb;
+  }
+
+  a {
+    color: #007BA7;
+    transition: 0.2s;
+  }
+  a:hover {
+    opacity: 0.8;
+  }
+
+  h1,h2,h3,h4,h5,h6, p {
+    color: #e6e6e6;
+  }
+
+  code {
+    background-color: #151821;
+    color: #e6e6e6;
+    padding: 0.1em 0.25em;
+    border-radius: 0.25rem;
+  }
+}
